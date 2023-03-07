@@ -158,7 +158,7 @@ func setupRouter() *gin.Engine {
 				"requestId": c.MustGet("RequestId"),
 				"product":   result.Product,
 				"jobReady":  result.JobReady,
-			}).Info("Job started")
+			}).Info("Job " + result.ID + " started")
 			c.JSON(http.StatusOK, result)
 		}
 
@@ -167,18 +167,18 @@ func setupRouter() *gin.Engine {
 	r.GET("/retrieve-job/:ID", func(c *gin.Context) {
 		ID := c.Param("ID")
 		job, success, systemHTTPStatusCode, message := retrieveJob(ID)
-		log.WithFields(logrus.Fields{
-			"requestId": c.MustGet("RequestId"),
-			"success":   success,
-		}).Info("Request to retrieve Coffee")
 		if !success {
 			log.WithFields(logrus.Fields{
 				"requestId": c.MustGet("RequestId"),
 				"errorCode": systemHTTPStatusCode,
 				"job-id":    ID,
-			}).Error("Failed to retrieve Coffee: " + message)
+			}).Error("Failed to retrieve Coffee " + ID + ": " + message)
 			c.JSON(http.StatusBadRequest, gin.H{"message": message})
 		} else {
+			log.WithFields(logrus.Fields{
+				"requestId": c.MustGet("RequestId"),
+				"success":   success,
+			}).Info("Job " + ID + " retrieved")
 			c.JSON(http.StatusOK, job)
 		}
 	})
